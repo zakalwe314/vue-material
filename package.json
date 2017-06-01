@@ -35,7 +35,7 @@
     "dev": "babel-node build/server/index.js --presets es2015,stage-0",
     "build:docs": "babel-node build/server/build-docs.js --presets es2015,stage-0",
     "build:lib": "babel-node build/server/build-lib.js --presets es2015,stage-0",
-    "build": "rm -rf dist && npm run build:docs && npm run build:lib",
+    "build": "rimraf dist && npm run build:docs && npm run build:lib",
     "lint": "eslint --ext .js,.vue --fix src docs",
     "release": "bash build/release.sh"
   },

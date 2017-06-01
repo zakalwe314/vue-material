@@ -11,41 +11,41 @@
 return /******/ (function(modules) { // webpackBootstrap
 /******/ 	// The module cache
 /******/ 	var installedModules = {};
-
+/******/
 /******/ 	// The require function
 /******/ 	function __webpack_require__(moduleId) {
-
+/******/
 /******/ 		// Check if module is in cache
-/******/ 		if(installedModules[moduleId])
+/******/ 		if(installedModules[moduleId]) {
 /******/ 			return installedModules[moduleId].exports;
-
+/******/ 		}
 /******/ 		// Create a new module (and put it into the cache)
 /******/ 		var module = installedModules[moduleId] = {
 /******/ 			i: moduleId,
 /******/ 			l: false,
 /******/ 			exports: {}
 /******/ 		};
-
+/******/
 /******/ 		// Execute the module function
 /******/ 		modules[moduleId].call(module.exports, module, module.exports, __webpack_require__);
-
+/******/
 /******/ 		// Flag the module as loaded
 /******/ 		module.l = true;
-
+/******/
 /******/ 		// Return the exports of the module
 /******/ 		return module.exports;
 /******/ 	}
-
-
+/******/
+/******/
 /******/ 	// expose the modules object (__webpack_modules__)
 /******/ 	__webpack_require__.m = modules;
-
+/******/
 /******/ 	// expose the module cache
 /******/ 	__webpack_require__.c = installedModules;
-
+/******/
 /******/ 	// identity function for calling harmony imports with the correct context
 /******/ 	__webpack_require__.i = function(value) { return value; };
-
+/******/
 /******/ 	// define getter function for harmony exports
 /******/ 	__webpack_require__.d = function(exports, name, getter) {
 /******/ 		if(!__webpack_require__.o(exports, name)) {
@@ -56,7 +56,7 @@ return /******/ (function(modules) { // webpackBootstrap
 /******/ 			});
 /******/ 		}
 /******/ 	};
-
+/******/
 /******/ 	// getDefaultExport function for compatibility with non-harmony modules
 /******/ 	__webpack_require__.n = function(module) {
 /******/ 		var getter = module && module.__esModule ?
@@ -65,15 +65,15 @@ return /******/ (function(modules) { // webpackBootstrap
 /******/ 		__webpack_require__.d(getter, 'a', getter);
 /******/ 		return getter;
 /******/ 	};
-
+/******/
 /******/ 	// Object.prototype.hasOwnProperty.call
 /******/ 	__webpack_require__.o = function(object, property) { return Object.prototype.hasOwnProperty.call(object, property); };
-
+/******/
 /******/ 	// __webpack_public_path__
 /******/ 	__webpack_require__.p = "/";
-
+/******/
 /******/ 	// Load entry module and return exports
-/******/ 	return __webpack_require__(__webpack_require__.s = 404);
+/******/ 	return __webpack_require__(__webpack_require__.s = 453);
 /******/ })
 /************************************************************************/
 /******/ ({
@@ -141,60 +141,52 @@ module.exports = function normalizeComponent (
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
+// Theme mixin
+
+// Grab the closest ancestor component's `md-theme` attribute OR grab the
+// `md-name` attribute from an `<md-theme>` component.
+function getAncestorThemeName(component) {
+  if (!component) {
+    return null;
+  }
+
+  var name = component.mdTheme;
+
+  if (!name && component.$options._componentTag === 'md-theme') {
+    name = component.mdName;
+  }
+
+  return name || getAncestorThemeName(component.$parent);
+}
+
 exports.default = {
   props: {
     mdTheme: String
   },
-  data: function data() {
-    return {
-      closestThemedParent: false
-    };
-  },
-  methods: {
-    getClosestThemedParent: function getClosestThemedParent($parent) {
-      if (!$parent || !$parent.$el || $parent._uid === 0) {
-        return false;
-      }
-
-      if ($parent.mdTheme || $parent.mdName) {
-        return $parent;
-      }
-
-      return this.getClosestThemedParent($parent.$parent);
-    }
-  },
   computed: {
+    mdEffectiveTheme: function mdEffectiveTheme() {
+      return getAncestorThemeName(this) || this.$material.currentTheme;
+    },
     themeClass: function themeClass() {
-      if (this.mdTheme) {
-        return 'md-theme-' + this.mdTheme;
-      }
-
-      var theme = this.closestThemedParent.mdTheme;
-
-      if (!theme) {
-        if (this.closestThemedParent) {
-          theme = this.closestThemedParent.mdName;
-        } else {
-          theme = this.$material.currentTheme;
-        }
-      }
-
-      return 'md-theme-' + theme;
+      return this.$material.prefix + this.mdEffectiveTheme;
     }
   },
-  mounted: function mounted() {
-    this.closestThemedParent = this.getClosestThemedParent(this.$parent);
-
-    if (!this.$material.currentTheme) {
-      this.$material.setCurrentTheme('default');
+  watch: {
+    mdTheme: function mdTheme(value) {
+      this.$material.useTheme(value);
     }
+  },
+  beforeMount: function beforeMount() {
+    var localTheme = this.mdTheme;
+
+    this.$material.useTheme(localTheme ? localTheme : 'default');
   }
 };
 module.exports = exports['default'];
 
 /***/ }),
 
-/***/ 144:
+/***/ 139:
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -211,16 +203,19 @@ var _mixin2 = _interopRequireDefault(_mixin);
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
 exports.default = {
+  name: 'md-chip',
   props: {
     disabled: Boolean,
-    mdDeletable: Boolean
+    mdDeletable: Boolean,
+    mdEditable: Boolean
   },
   mixins: [_mixin2.default],
   computed: {
     classes: function classes() {
       return {
         'md-deletable': this.mdDeletable,
-        'md-disabled': this.disabled
+        'md-disabled': this.disabled,
+        'md-editable': this.mdEditable
       };
     }
   }
@@ -239,12 +234,14 @@ exports.default = {
 //
 //
 //
+//
+//
 
 module.exports = exports['default'];
 
 /***/ }),
 
-/***/ 145:
+/***/ 140:
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -258,7 +255,7 @@ var _mixin = __webpack_require__(1);
 
 var _mixin2 = _interopRequireDefault(_mixin);
 
-var _uniqueId = __webpack_require__(48);
+var _uniqueId = __webpack_require__(36);
 
 var _uniqueId2 = _interopRequireDefault(_uniqueId);
 
@@ -295,8 +292,11 @@ function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { de
 //
 //
 //
+//
+//
 
 exports.default = {
+  name: 'md-chips',
   props: {
     value: Array,
     disabled: Boolean,
@@ -331,7 +331,8 @@ exports.default = {
     classes: function classes() {
       return {
         'md-static': this.mdStatic,
-        'md-disabled': this.disabled
+        'md-disabled': this.disabled,
+        'md-chips': true
       };
     }
   },
@@ -366,6 +367,17 @@ exports.default = {
       this.$emit('change', this.selectedChips);
       this.applyInputFocus();
     },
+    editChip: function editChip(chip) {
+      var index = this.selectedChips.indexOf(chip);
+
+      if (index >= 0) {
+        this.selectedChips.splice(index, 1);
+      }
+
+      this.currentChip = chip;
+      this.$emit('change', this.selectedChips);
+      this.applyInputFocus();
+    },
     deleteLastChip: function deleteLastChip() {
       if (!this.currentChip) {
         this.selectedChips.pop();
@@ -379,34 +391,34 @@ module.exports = exports['default'];
 
 /***/ }),
 
-/***/ 219:
+/***/ 247:
 /***/ (function(module, exports) {
 
 // removed by extract-text-webpack-plugin
 
 /***/ }),
 
-/***/ 239:
+/***/ 269:
 /***/ (function(module, exports) {
 
-module.exports = ".THEME_NAME.md-chip {\n  background-color: BACKGROUND-CONTRAST-0.12; }\n  .THEME_NAME.md-chip.md-deletable:hover, .THEME_NAME.md-chip.md-deletable:focus {\n    background-color: BACKGROUND-CONTRAST-0.54;\n    color: BACKGROUND-COLOR; }\n    .THEME_NAME.md-chip.md-deletable:hover .md-delete, .THEME_NAME.md-chip.md-deletable:focus .md-delete {\n      color: BACKGROUND-COLOR; }\n  .THEME_NAME.md-chip .md-delete {\n    color: BACKGROUND-CONTRAST-0.38; }\n    .THEME_NAME.md-chip .md-delete .md-ripple {\n      color: BACKGROUND-COLOR; }\n"
+module.exports = ".THEME_NAME.md-chip {\n  background-color: BACKGROUND-CONTRAST-0.12; }\n  .THEME_NAME.md-chip.md-deletable:hover, .THEME_NAME.md-chip.md-deletable:focus, .THEME_NAME.md-chip.md-editable:hover, .THEME_NAME.md-chip.md-editable:focus {\n    background-color: BACKGROUND-CONTRAST-0.54;\n    color: BACKGROUND-COLOR; }\n    .THEME_NAME.md-chip.md-deletable:hover .md-delete, .THEME_NAME.md-chip.md-deletable:focus .md-delete, .THEME_NAME.md-chip.md-editable:hover .md-delete, .THEME_NAME.md-chip.md-editable:focus .md-delete {\n      color: BACKGROUND-COLOR; }\n  .THEME_NAME.md-chip .md-delete {\n    color: BACKGROUND-CONTRAST-0.38; }\n    .THEME_NAME.md-chip .md-delete .md-ripple {\n      color: BACKGROUND-COLOR; }\n  .THEME_NAME.md-chip.md-primary {\n    color: PRIMARY-CONTRAST;\n    background-color: PRIMARY-COLOR; }\n  .THEME_NAME.md-chip.md-accent {\n    color: ACCENT-CONTRAST;\n    background-color: ACCENT-COLOR; }\n  .THEME_NAME.md-chip.md-warn {\n    color: WARN-CONTRAST;\n    background-color: WARN-COLOR; }\n"
 
 /***/ }),
 
-/***/ 277:
+/***/ 310:
 /***/ (function(module, exports, __webpack_require__) {
 
 var Component = __webpack_require__(0)(
   /* script */
-  __webpack_require__(144),
+  __webpack_require__(139),
   /* template */
-  __webpack_require__(352),
+  __webpack_require__(393),
   /* scopeId */
   null,
   /* cssModules */
   null
 )
-Component.options.__file = "/Users/mrufino/Projects/personal/github/vue-material/src/components/mdChips/mdChip.vue"
+Component.options.__file = "C:\\Dev\\github\\vm2\\vue-material\\src\\components\\mdChips\\mdChip.vue"
 if (Component.esModule && Object.keys(Component.esModule).some((function (key) {return key !== "default" && key !== "__esModule"}))) {console.error("named exports are not supported in *.vue files.")}
 if (Component.options.functional) {console.error("[vue-loader] mdChip.vue: functional components are not supported with templates, they should use render functions.")}
 
@@ -428,24 +440,24 @@ module.exports = Component.exports
 
 /***/ }),
 
-/***/ 278:
+/***/ 311:
 /***/ (function(module, exports, __webpack_require__) {
 
 
 /* styles */
-__webpack_require__(219)
+__webpack_require__(247)
 
 var Component = __webpack_require__(0)(
   /* script */
-  __webpack_require__(145),
+  __webpack_require__(140),
   /* template */
-  __webpack_require__(369),
+  __webpack_require__(415),
   /* scopeId */
   null,
   /* cssModules */
   null
 )
-Component.options.__file = "/Users/mrufino/Projects/personal/github/vue-material/src/components/mdChips/mdChips.vue"
+Component.options.__file = "C:\\Dev\\github\\vm2\\vue-material\\src\\components\\mdChips\\mdChips.vue"
 if (Component.esModule && Object.keys(Component.esModule).some((function (key) {return key !== "default" && key !== "__esModule"}))) {console.error("named exports are not supported in *.vue files.")}
 if (Component.options.functional) {console.error("[vue-loader] mdChips.vue: functional components are not supported with templates, they should use render functions.")}
 
@@ -467,135 +479,7 @@ module.exports = Component.exports
 
 /***/ }),
 
-/***/ 352:
-/***/ (function(module, exports, __webpack_require__) {
-
-module.exports={render:function (){var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;
-  return _c('div', {
-    staticClass: "md-chip",
-    class: [_vm.themeClass, _vm.classes],
-    attrs: {
-      "tabindex": "0"
-    }
-  }, [_vm._t("default"), _vm._v(" "), (_vm.mdDeletable) ? _c('md-button', {
-    staticClass: "md-icon-button md-dense md-delete",
-    attrs: {
-      "tabindex": "-1"
-    },
-    nativeOn: {
-      "click": function($event) {
-        !_vm.disabled && _vm.$emit('delete')
-      },
-      "keyup": function($event) {
-        if (_vm._k($event.keyCode, "delete", [8, 46])) { return; }
-        !_vm.disabled && _vm.$emit('delete')
-      }
-    }
-  }, [_c('md-icon', {
-    staticClass: "md-icon-delete"
-  }, [_vm._v("cancel")])], 1) : _vm._e()], 2)
-},staticRenderFns: []}
-module.exports.render._withStripped = true
-if (false) {
-  module.hot.accept()
-  if (module.hot.data) {
-     require("vue-hot-reload-api").rerender("data-v-2c2a829d", module.exports)
-  }
-}
-
-/***/ }),
-
-/***/ 369:
-/***/ (function(module, exports, __webpack_require__) {
-
-module.exports={render:function (){var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;
-  return _c('div', {
-    staticClass: "md-chips",
-    class: [_vm.themeClass, _vm.classes]
-  }, [_c('md-input-container', {
-    nativeOn: {
-      "click": function($event) {
-        _vm.applyInputFocus($event)
-      }
-    }
-  }, [_vm._l((_vm.selectedChips), (function(chip) {
-    return _c('md-chip', {
-      attrs: {
-        "md-deletable": !_vm.mdStatic,
-        "disabled": _vm.disabled
-      },
-      on: {
-        "delete": function($event) {
-          _vm.deleteChip(chip)
-        }
-      }
-    }, [_vm._t("default", null, {
-      value: chip
-    })], 2)
-  })), _vm._v(" "), _c('md-input', {
-    directives: [{
-      name: "show",
-      rawName: "v-show",
-      value: (!_vm.mdStatic),
-      expression: "!mdStatic"
-    }, {
-      name: "model",
-      rawName: "v-model",
-      value: (_vm.currentChip),
-      expression: "currentChip"
-    }],
-    ref: "input",
-    attrs: {
-      "type": _vm.mdInputType,
-      "placeholder": _vm.mdInputPlaceholder,
-      "id": _vm.inputId,
-      "name": _vm.mdInputName,
-      "disabled": _vm.disabled,
-      "tabindex": "0"
-    },
-    domProps: {
-      "value": (_vm.currentChip)
-    },
-    on: {
-      "input": function($event) {
-        _vm.currentChip = $event
-      }
-    },
-    nativeOn: {
-      "keydown": [function($event) {
-        if (_vm._k($event.keyCode, "delete", [8, 46])) { return; }
-        _vm.deleteLastChip($event)
-      }, function($event) {
-        if (_vm._k($event.keyCode, "enter", 13)) { return; }
-        $event.preventDefault();
-        _vm.addChip($event)
-      }, function($event) {
-        if ($event.keyCode !== 186) { return; }
-        $event.preventDefault();
-        _vm.addChip($event)
-      }]
-    }
-  })], 2)], 1)
-},staticRenderFns: []}
-module.exports.render._withStripped = true
-if (false) {
-  module.hot.accept()
-  if (module.hot.data) {
-     require("vue-hot-reload-api").rerender("data-v-5cd17226", module.exports)
-  }
-}
-
-/***/ }),
-
-/***/ 404:
-/***/ (function(module, exports, __webpack_require__) {
-
-module.exports = __webpack_require__(97);
-
-
-/***/ }),
-
-/***/ 48:
+/***/ 36:
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -613,7 +497,139 @@ module.exports = exports["default"];
 
 /***/ }),
 
-/***/ 97:
+/***/ 393:
+/***/ (function(module, exports, __webpack_require__) {
+
+module.exports={render:function (){var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;
+  return _c('div', {
+    staticClass: "md-chip",
+    class: [_vm.themeClass, _vm.classes],
+    attrs: {
+      "tabindex": "0"
+    }
+  }, [_c('div', {
+    staticClass: "md-chip-container",
+    on: {
+      "click": function($event) {
+        !_vm.disabled && _vm.mdEditable && _vm.$emit('edit')
+      }
+    }
+  }, [_vm._t("default")], 2), _vm._v(" "), (_vm.mdDeletable) ? _c('md-button', {
+    staticClass: "md-icon-button md-dense md-delete",
+    attrs: {
+      "tabindex": "-1"
+    },
+    nativeOn: {
+      "click": function($event) {
+        !_vm.disabled && _vm.$emit('delete')
+      },
+      "keyup": function($event) {
+        if (!('button' in $event) && _vm._k($event.keyCode, "delete", [8, 46])) { return null; }
+        !_vm.disabled && _vm.$emit('delete')
+      }
+    }
+  }, [_c('md-icon', {
+    staticClass: "md-icon-delete"
+  }, [_vm._v("cancel")])], 1) : _vm._e()], 1)
+},staticRenderFns: []}
+module.exports.render._withStripped = true
+if (false) {
+  module.hot.accept()
+  if (module.hot.data) {
+     require("vue-hot-reload-api").rerender("data-v-2c2a829d", module.exports)
+  }
+}
+
+/***/ }),
+
+/***/ 415:
+/***/ (function(module, exports, __webpack_require__) {
+
+module.exports={render:function (){var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;
+  return _c('md-input-container', {
+    staticClass: "md-chips",
+    class: [_vm.themeClass, _vm.classes],
+    nativeOn: {
+      "click": function($event) {
+        _vm.applyInputFocus($event)
+      }
+    }
+  }, [_vm._l((_vm.selectedChips), (function(chip) {
+    return _c('md-chip', {
+      attrs: {
+        "md-editable": !_vm.mdStatic,
+        "md-deletable": !_vm.mdStatic,
+        "disabled": _vm.disabled
+      },
+      on: {
+        "edit": function($event) {
+          _vm.editChip(chip)
+        },
+        "delete": function($event) {
+          _vm.deleteChip(chip)
+        }
+      }
+    }, [_vm._t("chip", [_vm._v(_vm._s(chip))], {
+      value: chip
+    })], 2)
+  })), _vm._v(" "), _c('md-input', {
+    directives: [{
+      name: "show",
+      rawName: "v-show",
+      value: (!_vm.mdStatic),
+      expression: "!mdStatic"
+    }],
+    ref: "input",
+    attrs: {
+      "type": _vm.mdInputType,
+      "placeholder": _vm.mdInputPlaceholder,
+      "id": _vm.inputId,
+      "name": _vm.mdInputName,
+      "disabled": _vm.disabled,
+      "tabindex": "0"
+    },
+    nativeOn: {
+      "keydown": [function($event) {
+        if (!('button' in $event) && _vm._k($event.keyCode, "delete", [8, 46])) { return null; }
+        _vm.deleteLastChip($event)
+      }, function($event) {
+        if (!('button' in $event) && _vm._k($event.keyCode, "enter", 13)) { return null; }
+        $event.preventDefault();
+        _vm.addChip($event)
+      }, function($event) {
+        if (!('button' in $event) && $event.keyCode !== 186) { return null; }
+        $event.preventDefault();
+        _vm.addChip($event)
+      }]
+    },
+    model: {
+      value: (_vm.currentChip),
+      callback: function($$v) {
+        _vm.currentChip = $$v
+      },
+      expression: "currentChip"
+    }
+  }), _vm._v(" "), _vm._t("default")], 2)
+},staticRenderFns: []}
+module.exports.render._withStripped = true
+if (false) {
+  module.hot.accept()
+  if (module.hot.data) {
+     require("vue-hot-reload-api").rerender("data-v-5cd17226", module.exports)
+  }
+}
+
+/***/ }),
+
+/***/ 453:
+/***/ (function(module, exports, __webpack_require__) {
+
+module.exports = __webpack_require__(83);
+
+
+/***/ }),
+
+/***/ 83:
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -624,15 +640,15 @@ Object.defineProperty(exports, "__esModule", {
 });
 exports.default = install;
 
-var _mdChips = __webpack_require__(278);
+var _mdChips = __webpack_require__(311);
 
 var _mdChips2 = _interopRequireDefault(_mdChips);
 
-var _mdChip = __webpack_require__(277);
+var _mdChip = __webpack_require__(310);
 
 var _mdChip2 = _interopRequireDefault(_mdChip);
 
-var _mdChips3 = __webpack_require__(239);
+var _mdChips3 = __webpack_require__(269);
 
 var _mdChips4 = _interopRequireDefault(_mdChips3);
 
